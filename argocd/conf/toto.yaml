@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - chart: argo-cd
+      repoURL: https://argoproj.github.io/argo-helm
+      targetRevision: 7.6.12
+      helm:
+        releaseName: my-argocd
+        valuesObject:
+          configs:
+            cm:
+              timeout.reconciliation: 60s
+              kustomize.buildOptions: --enable-helm --load-restrictor LoadRestrictionsNone
+            params:
+              server.insecure: true
+              server.disable.auth: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - FailOnSharedResource=true
