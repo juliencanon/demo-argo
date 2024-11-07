@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: "appset-api"
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - list:
+        elements:
+          - path: "app/api/dev"
+            env: "dev"
+            autoSync: true
+          - path: "app/api/itg"
+            env: "itg"
+            autoSync: false
+          - path: "app/api/prod"
+            env: "prod"
+            autoSync: false
+  template:
+    metadata:
+      namespace: "api-{{.env}}"
+      name: "app-api-{{.env}}"
+      labels:
+        name: "api-{{.env}}"
+    spec:
+      project: api-project
+      source:
+        repoURL: <url_repo_git>
+        targetRevision: "main"
+        path: "{{.path}}"
+      destination:
+        namespace: "api-{{.env}}"
+        server: https://kubernetes.default.svc
+      syncPolicy:
+        managedNamespaceMetadata:
+          labels:
+            argo-deployed: "true"
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true
+          - FailOnSharedResource=true
+
+  templatePatch: |
+    {{- if .autoSync }}
+      spec:
+        syncPolicy:
+          automated: {}
+    {{- end }}
