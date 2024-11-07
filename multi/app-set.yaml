@@ -8,13 +8,13 @@ spec:
   generators:
     - list:
         elements:
-          - path: "app/api/dev"
+          - path: "multi/app/api/dev"
             env: "dev"
             autoSync: true
-          - path: "app/api/itg"
+          - path: "multi/app/api/itg"
             env: "itg"
             autoSync: false
-          - path: "app/api/prod"
+          - path: "multi/app/api/prod"
             env: "prod"
             autoSync: false
   template:
@@ -24,9 +24,9 @@ spec:
       labels:
         name: "api-{{.env}}"
     spec:
-      project: api-project
+      project: default
       source:
-        repoURL: <url_repo_git>
+        repoURL: https://github.com/juliencanon/demo-argo.git
         targetRevision: "main"
         path: "{{.path}}"
       destination:
